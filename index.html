@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Compression</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #121212;
+            background-image: url('https://www.transparenttextures.com/patterns/dark-matter.png');
+            color: #e0e0e0;
+            justify-content: center;
+
+        }
+        h1 {
+            background-image: linear-gradient(to right top, #2c7cf4, #00abff, #00cce2, #00e288, #a8eb12);            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+ 
+        .container {
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            background-color: rgba(17, 25, 40, 0.25);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.125);  
+            padding: 38px;  
+            filter: drop-shadow(0 30px 10px rgba(0,0,0,0.125));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content:center;
+            text-align: center;
+            margin-top: 12%;
+        }
+
+        .output {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .output img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ccc;
+            padding: 5px;
+            background: #f9f9f9;
+            margin-bottom: 10px;
+        }
+
+        button {
+            margin: 10px 5px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        input {
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #262626;
+            -webkit-text-fill-color: #ececec;
+            
+        }
+        
+        
+
+        .message {
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px solid #007bff;
+            background-color: #e7f3ff;
+            color: #0056b3;
+            border-radius: 5px;
+        }
+
+        .download-link {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        .download-link:hover {
+            text-decoration: underline;
+        }
+        input[type=file]::file-selector-button {
+        margin-right: 20px;
+        border: none;
+        background: #4e576c;
+        padding: 10px 20px;
+        border-radius: 10px;
+        color: #fff;
+        cursor: pointer;
+        transition: background .2s ease-in-out;
+        }
+
+        input[type=file]::file-selector-button:hover {
+        background: #313744;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Image Compression Tool</h1>
+        <input type="file" id="imageInput" accept="image/*">
+        <div id="message" class="message" style="display:none;"></div>
+        <div id="options" style="display:none;">
+            <button onclick="compressImage(0.25)">Compress by 75%</button>
+            <button onclick="compressImage(0.5)">Compress by 50%</button>
+            <button onclick="compressImage(0.75)">Compress by 25%</button>
+        </div>
+        <div class="output" id="output"></div>
+    </div>
+
+    <script>
+        let originalImage = null;
+
+        document.getElementById('imageInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+
+            if (file) {
+                const messageDiv = document.getElementById('message');
+                const optionsDiv = document.getElementById('options');
+                const outputDiv = document.getElementById('output');
+                messageDiv.style.display = 'none';
+                outputDiv.innerHTML = '';
+
+                if (file.size > 2 * 1024 * 1024) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        originalImage = new Image();
+                        originalImage.src = e.target.result;
+                        optionsDiv.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    messageDiv.textContent = 'The uploaded image is smaller than 2MB. Please upload a larger image.';
+                    messageDiv.style.display = 'block';
+                    optionsDiv.style.display = 'none';
+                }
+            }
+        });
+
+        function compressImage(scale) {
+            if (!originalImage) return;
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = originalImage.width * scale;
+            canvas.height = originalImage.height * scale;
+
+            ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
+
+            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+
+            displayCompressedImage(compressedDataUrl);
+        }
+
+        function displayCompressedImage(dataUrl) {
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = '';
+
+            const img = document.createElement('img');
+            img.src = dataUrl;
+
+            const link = document.createElement('a');
+            link.href = dataUrl;
+            link.download = 'compressed-image.jpg';
+            link.textContent = 'Download Compressed Image';
+            link.className = 'download-link';
+
+            outputDiv.appendChild(img);
+            outputDiv.appendChild(link);
+        }
+    </script>
+</body>
+</html>
